@@ -7,20 +7,28 @@ const argv = require('minimist')(process.argv.slice(2))
 
 const fetch = require('node-fetch').default
 const chalk = require('chalk')
-const suiviPoste = require('./lib')
+const suiviPoste = require('suivi-poste')
 
 const trackingNumbers = argv._.map(x => x.toString())
 
 // Check if asked for help message or no tracking numbers provided
 if (trackingNumbers.length === 0 || ['h', 'help', 'aide'].some(x => argv[x] === true)) {
-  console.log(
-    'Usage   : suivi-poste <tracking_numbers>\n' +
-      'Exemple : suivi-poste 4P36275770836 6T11111111110 114111111111111\n\n' +
-      "\t--help --aide -h\tAfficher l'aide\n" +
-      "\t--raw\t\t\tRécupérer le résultat brut de l'API au format JSON\n" +
-      "\t--no-colors\t\tDésactiver l'affichage des couleurs\n" +
-      '\nhttps://github.com/rigwild/suivi-poste'
-  )
+  console.log(`
+  Usage
+    $ suivi-poste <tracking_numbers>
+  
+  Options
+    --help --aide -h   Afficher l'aide
+    --raw              Récupérer le résultat brut de l'API au format JSON
+    --no-colors        Désactiver l'affichage des couleurs
+    
+  Exemple
+    $ suivi-poste 4P36275770836 6T11111111110 114111111111111
+    $ suivi-poste 4P36275770836 114111111111111 --no-colors
+    $ suivi-poste 4P36275770836 --raw --api-key="my-api-key"
+
+  https://github.com/rigwild/suivi-poste
+`)
   process.exit(1)
 }
 

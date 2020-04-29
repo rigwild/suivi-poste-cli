@@ -1,40 +1,37 @@
 {
-  "name": "suivi-poste",
+  "name": "suivi-poste-cli",
   "version": "0.1.0",
-  "description": "Lib et CLI suivi colis La Poste",
-  "keywords": [],
+  "description": "Suivre les envois postaux depuis le terminal",
+  "license": "MIT",
+  "repository": "rigwild/suivi-poste-cli",
+  "author": {
+    "name": "rigwild",
+    "email": "me@rigwild.dev",
+    "url": "https://rigwild.dev/"
+  },
   "bin": {
-    "suivi-poste": "bin.js"
+    "suivi-poste": "cli.js"
   },
-  "directories": {
-    "lib": "."
-  },
-  "main": "lib.js",
   "scripts": {
-    "start": "node bin.js",
-    "start:test": "NODE_ENV=test node bin.js",
-    "proxy": "node proxyServer.js"
+    "start": "node cli.js",
+    "start:test": "NODE_ENV=test node cli.js"
   },
+  "files": [
+    "cli.js"
+  ],
+  "keywords": [
+    "cli-app",
+    "cli",
+    "suivi-poste",
+    "suivi",
+    "poste",
+    "chronopost",
+    "colissimo",
+    "courrier"
+  ],
   "dependencies": {
     "chalk": "^4.0.0",
     "minimist": "^1.2.5",
     "node-fetch": "^2.6.0"
-  },
-  "devDependencies": {
-    "compression": "^1.7.4",
-    "cors": "^2.8.5",
-    "dotenv-safe": "^8.2.0",
-    "express": "^4.17.1",
-    "express-rate-limit": "^5.1.1",
-    "morgan": "^1.10.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/rigwild/suivi-poste"
-  },
-  "bugs": {
-    "url": "https://github.com/rigwild/suivi-poste/issues"
-  },
-  "author": "rigwild <me@rigwild.dev> (https://rigwild.dev/)",
-  "license": "MIT"
+  }
 }
