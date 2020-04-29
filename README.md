@@ -23,9 +23,10 @@ $ suivi-poste --help
     $ suivi-poste <tracking_numbers>
 
   Options
-    --help --aide -h   Afficher l'aide
-    --raw              Récupérer le résultat brut de l'API au format JSON
-    --no-colors        Désactiver l'affichage des couleurs
+    --help --aide -h    Afficher l'aide
+    --raw               Récupérer le résultat brut de l'API au format JSON
+    --no-colors         Désactiver l'affichage des couleurs
+    --api-key="<token>" Clef d'API suivi La Poste à utiliser
 
   Exemple
     $ suivi-poste 4P36275770836 6T11111111110 114111111111111
