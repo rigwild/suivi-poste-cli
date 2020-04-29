@@ -3,25 +3,32 @@
 // @ts-check
 'use strict'
 
+const argv = require('minimist')(process.argv.slice(2))
+
 const fetch = require('node-fetch').default
 const chalk = require('chalk')
 const suiviPoste = require('./lib')
 
-const help = () => {
-  console.log('Usage: suivi-poste <tracking_number>')
+const trackingNumbers = argv._.map(x => x.toString())
+
+// Check if asked for help message or no tracking numbers provided
+if (trackingNumbers.length === 0 || ['h', 'help', 'aide'].some(x => argv[x] === true)) {
+  console.log(
+    'Usage   : suivi-poste <tracking_numbers>\n' +
+      'Exemple : suivi-poste 4P36275770836 6T11111111110 114111111111111\n\n' +
+      "\t--help --aide -h\tAfficher l'aide\n" +
+      "\t--raw\t\t\tRécupérer le résultat brut de l'API au format JSON\n" +
+      "\t--no-colors\t\tDésactiver l'affichage des couleurs\n" +
+      '\nhttps://github.com/rigwild/suivi-poste'
+  )
   process.exit(1)
 }
 
-// Check if no parameters provided
-if (process.argv.length <= 2) help()
+// Disable colors if `--no-colors`
+if (argv.colors === false) process.env.FORCE_COLOR = '0'
 
-const trackingNumber = process.argv[2]
-
-// Check if asked for help message
-if (['-h', '--help', 'help', '--aide', 'aide'].some(x => x === trackingNumber)) help()
-
-// Support `--raw` command line option (no error checking)
-const isRawMode = process.argv.length >= 3 && process.argv[3] === '--raw'
+// Support `--raw` command line option
+const isRawMode = argv.raw === true
 
 const apiUri = process.env.NODE_ENV === 'test' ? 'http://localhost:42210' : `https://suivi-poste-proxy.rigwild.dev`
 const userAgent = `suivi-laposte-cli/${require('./package.json').version}`
@@ -42,77 +49,125 @@ const dateFormat = date => {
 // Track the shipment and print the result to the console
 const setup = async () => {
   try {
-    const res = await fetch(`${apiUri}/${trackingNumber}`, { headers: { 'User-Agent': userAgent } })
+    const res = await fetch(`${apiUri}/${trackingNumbers.join(',')}`, { headers: { 'User-Agent': userAgent } })
 
+    // Raw mode, just print the result
     if (isRawMode) return process.stdout.write(await res.text())
 
     if (!res.ok) throw res
 
-    const trackingData = await res.json()
+    let trackingDatas = await res.json()
 
-    console.log(trackingData)
-    // Shipment data
-    const s = trackingData.shipment
-    if (s.product) console.log(`Dénomination du produit: ${s.product}`)
-    if (s.holder) console.log(`Métier en charge de l'objet: ${suiviPoste.shipmentHolderEnum[s.holder]}`)
-    if (s.isFinal) console.log(`Finalisé: ${s.isFinal ? '✔️' : '❌'}`)
-    if (s.entryDate) console.log(`Date de prise en charge: ${dateFormat(new Date(s.entryDate))}`)
-    if (s.deliveryDate) console.log(`Date de livraison: ${dateFormat(new Date(s.deliveryDate))}`)
+    // If not an array, only one tracking number, insert in array
+    if (!Array.isArray(trackingDatas)) trackingDatas = [trackingDatas]
+    // console.log(trackingDatas)
 
-    console.log()
-
-    // Context data
-    // TODO: Add `deliveryChoice`
-    const c = trackingData.shipment.contextData
-    if (c.removalPoint.name) console.log(`Point de retrait: ${c.removalPoint.type} ${c.removalPoint.name}`)
-    if (c.originCountry) console.log(`Pays d'origine: ${c.originCountry}`)
-    if (c.arrivalCountry) console.log(`Pays de destination: ${c.arrivalCountry}`)
-    if (c.partner)
-      console.log(
-        `Informations sur poste internationale: ${c.partner.name} - ` +
-          `${c.partner.network} - ` +
-          `${c.partner.reference}`
+    // Sort tracked numbers in the order of the console input
+    const trackingLogs = trackingDatas
+      .sort((a, b) =>
+        trackingNumbers.indexOf(a.idShip || a.shipment.idShip) > trackingNumbers.indexOf(b.idShip || b.shipment.idShip)
+          ? 1
+          : -1
       )
+      .map(trackingData => {
+        // Check if tracking failed
+        if (trackingData.returnCode < 200 || trackingData.returnCode >= 300)
+          return (
+            `\n${chalk.blueBright('Numéro de suivi              : ')}${chalk.red(trackingData.idShip)} 👎\n` +
+            `${chalk.grey(trackingData.returnMessage || 'Numéro inconnu.')}\n` +
+            `👉 ${chalk.cyanBright('Essayez sur le site: https://www.laposte.fr/outils/track-a-parcel')}`
+          )
 
-    console.log()
+        let trackingDataStr = '\n'
 
-    // Timeline
-    s.timeline.forEach(x => {
-      let content = ''
-      if (x.status) content += '✔️ '
-      if (x.date) content += `${dateFormat(new Date(x.date))} - `
-      content += `${suiviPoste.shipmentTimelineElemTypeEnum[x.type]}`
-      if (x.country) content += ` - Pays: ${x.country}`
-      if (x.shortLabel) content += ` - ${x.shortLabel}`
-      if (x.longLabel) content += `\n\t${x.longLabel}`
-      console.log(content)
-    })
+        // Shipment data
+        const s = trackingData.shipment
+        if (s.idShip)
+          trackingDataStr += `${chalk.blueBright('Numéro de suivi              : ')}${chalk.green(s.idShip)} 👍\n`
+        if (s.isFinal)
+          trackingDataStr += `${chalk.blueBright('Finalisé                     : ')}${s.isFinal ? '✔️' : '❌'}\n`
+        if (s.entryDate)
+          trackingDataStr += `${chalk.blueBright('\nDate de prise en charge      : ')}${dateFormat(
+            new Date(s.entryDate)
+          )}\n`
+        if (s.deliveryDate)
+          trackingDataStr += `${chalk.blueBright('Date de livraison            : ')}${dateFormat(
+            new Date(s.deliveryDate)
+          )}\n`
 
-    console.log()
+        if (s.product)
+          trackingDataStr += `${chalk.grey(
+            '\nDénomination du produit      : '
+          )}${s.product[0].toUpperCase()}${s.product.slice(1)}\n`
+        if (s.holder)
+          trackingDataStr += `${chalk.grey("Métier en charge de l'objet  : ")}${
+            suiviPoste.shipmentHolderEnum[s.holder]
+          }\n`
 
-    // Events
-    s.event.reverse().forEach(x => {
-      let content = ''
-      if (x.date) content += `${dateFormat(new Date(x.date))} - `
-      content += x.label ? x.label : suiviPoste.events[x.code]
-      console.log(content)
-    })
+        // Context data
+        const c = trackingData.shipment.contextData
+        if (c) {
+          if (c.removalPoint && c.removalPoint.name)
+            trackingDataStr += `${chalk.grey('Point de retrait            : ')}${c.removalPoint.type} ${
+              c.removalPoint.name
+            }\n`
+          if (c.originCountry) trackingDataStr += `${chalk.grey("Pays d'origine               : ")}${c.originCountry}\n`
+          if (c.arrivalCountry)
+            trackingDataStr += `${chalk.grey('Pays de destination          : ')}${c.arrivalCountry}\n`
+          if (c.deliveryChoice && c.deliveryChoice.deliveryChoice)
+            trackingDataStr += `${chalk.grey('Modification de livraison    : ')}${
+              suiviPoste.shipmentContextDataDeliveryChoiceEnum[c.deliveryChoice.deliveryChoice]
+            }\n`
+          if (c.partner)
+            trackingDataStr +=
+              `${chalk.grey('Informations sur poste internationale : ')}${c.partner.name} - ` +
+              `${c.partner.network} - ` +
+              `${c.partner.reference}\n`
+          if (s.url) trackingDataStr += `${chalk.grey('URL de suivi                 : ')}${s.url}\n`
 
-    // TODO: Add `contextData` https://developer.laposte.fr/products/suivi/latest
+          trackingDataStr += '\n'
+        }
+
+        // Timeline - Hideen as a events is more relevant.
+        // s.timeline.forEach(x => {
+        //   if (x.status) trackingDataStr += '✔️ '
+        //   if (x.date) trackingDataStr += `${dateFormat(new Date(x.date))} - `
+        //   trackingDataStr += `${suiviPoste.shipmentTimelineElemTypeEnum[x.type]}`
+        //   if (x.country) trackingDataStr += ` - Pays: ${x.country}`
+        //   if (x.shortLabel) trackingDataStr += ` - ${x.shortLabel}`
+        //   if (x.longLabel) trackingDataStr += `\n\t${x.longLabel}`
+        //   trackingDataStr += '\n'
+        // })
+
+        // trackingDataStr += '\n'
+
+        // Events
+        s.event.reverse().forEach((x, i, arr) => {
+          if (x.date) trackingDataStr += `${chalk.yellow(dateFormat(new Date(x.date)))} - `
+          trackingDataStr += x.label ? x.label : suiviPoste.events[x.code]
+          if (i !== arr.length - 1) trackingDataStr += '\n'
+        })
+
+        return trackingDataStr
+      })
+
+    console.log(trackingLogs.join('\n_______________________\n'), '\n')
   } catch (err) {
-    if (isRawMode) return console.error(err)
+    if (!err.json || isRawMode) return console.error(err)
 
-    const body = await err.json()
+    let body = await err.json()
 
     // Got a Node.js error
     if (body.error) return console.error(body.error)
 
+    if (!Array.isArray(body)) body = [body]
+
     // Got error with the shipment tracking
-    console.error(chalk.red(`❌ ${body.returnMessage}`))
+    body.forEach(x => console.error(chalk.red(`❌ ${x.idShip} | ${body.returnMessage}`)))
     console.error(
-      chalk.yellow(
-        `\n🛠️ Cet outil se base sur l'API de suivi Open Data de La Poste, en beta. Certains numéros de suivis ne sont pas reconnus.\n` +
-          `👉 Essayez sur le site: https://www.laposte.fr/outils/track-a-parcel \n`
+      chalk.cyanBright(
+        `\n🛠️ Cet outil se base sur l'API de suivi Open Data de La Poste, en beta. Certains numéros de suivis peuvent ne pas être reconnus.\n` +
+          `👉 Essayez sur le site: https://www.laposte.fr/outils/track-a-parcel\n`
       )
     )
   }
