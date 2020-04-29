@@ -41,14 +41,14 @@ app.use(
 // @ts-ignore
 app.use(require('morgan')('combined'))
 
-app.get('/:trackingNumber', async (req, res) => {
+app.get('/:trackingNumbers', async (req, res) => {
   res.setHeader('Content-Type', 'application/json')
 
-  const trackingNumber = req.params.trackingNumber
-  if (!trackingNumber) return res.status(409).send({ returnMessage: 'Missing tracking number' })
+  const trackingNumbers = req.params.trackingNumbers
+  if (!trackingNumbers) return res.status(409).send({ returnMessage: 'Missing tracking number' })
 
   try {
-    const result = await suiviPostApi.getTracking(trackingNumber)
+    const result = await suiviPostApi.getTracking(...trackingNumbers.split(','))
     console.log(JSON.stringify(result, null, 2))
     res.json(result)
   } catch (err) {

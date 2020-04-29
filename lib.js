@@ -17,10 +17,10 @@ const userAgent = `github.com/rigwild/suivi-poste v${require('./package.json').v
 module.exports.api = API_KEY => ({
   /**
    * Load a shipment's tracking data
-   * @param {string} trackingNumber Shipment tracking number
+   * @param {string[]} trackingNumbers Shipment tracking number
    */
-  getTracking: trackingNumber =>
-    fetch(`https://api.laposte.fr/suivi/v2/idships/${trackingNumber}?lang=fr_FR`, {
+  getTracking: (...trackingNumbers) =>
+    fetch(`https://api.laposte.fr/suivi/v2/idships/${trackingNumbers.join(',')}?lang=fr_FR`, {
       headers: {
         Accept: 'application/json',
         'X-Okapi-Key': API_KEY,
@@ -31,16 +31,26 @@ module.exports.api = API_KEY => ({
       // the API returns a 404 not found and no JSON.
       // Mock the response for now.
       if (res.headers.get('content-type') !== 'application/json') {
+        console.log(trackingNumbers)
         // @ts-ignore
         res.customErrorStatus = 400
         // @ts-ignore
-        res.bodyJson = {
-          returnCode: 400,
-          returnMessage: 'Votre numéro est inconnu. Veuillez le ressaisir en respectant le format.',
-          lang: 'fr_FR',
-          scope: 'open',
-          idShip: trackingNumber
-        }
+        res.bodyJson =
+          trackingNumbers.length > 1
+            ? trackingNumbers.map(trackingNumber => ({
+                returnCode: 400,
+                returnMessage: 'Votre numéro est inconnu. Veuillez le ressaisir en respectant le format.',
+                lang: 'fr_FR',
+                scope: 'open',
+                idShip: trackingNumber
+              }))
+            : {
+                returnCode: 400,
+                returnMessage: 'Votre numéro est inconnu. Veuillez le ressaisir en respectant le format.',
+                lang: 'fr_FR',
+                scope: 'open',
+                idShip: trackingNumbers[0]
+              }
         throw res
       }
 
@@ -86,4 +96,9 @@ module.exports.shipmentTimelineElemTypeEnum = {
   '1': 'OK',
   '0': 'Aléa',
   '-1': 'KO'
+}
+module.exports.shipmentContextDataDeliveryChoiceEnum = {
+  '0': '',
+  '1': 'Possible',
+  '2': 'Choisi'
 }

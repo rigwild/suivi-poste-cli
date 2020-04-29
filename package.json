@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "chalk": "^4.0.0",
+    "minimist": "^1.2.5",
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {
