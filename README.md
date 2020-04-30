@@ -39,17 +39,8 @@ $ suivi-poste --help
     $ suivi-poste 4P36275770836 114111111111111 --no-color
     $ suivi-poste 4P36275770836 --raw --api-key="my-api-key"
 
-  https://github.com/rigwild/suivi-poste
+  suivi-poste-cli v0.1.2 - https://github.com/rigwild/suivi-poste-cli
 ```
-
-## Arguments de commande
-| Argument | Description |
-| -------- | ----------- |
-|  `--help` `--aide` `-h` | Afficher l'aide |
-| `--full` | Afficher les informations complètes de suivi |
-| `--raw` | Récupérer le résultat brut de l'[API suivi La Poste](https://developer.laposte.fr/products/suivi/latest) au format JSON |
-| `--no-color` | Désactiver l'affichage des couleurs |
-| `--api-key="<token>"` | Clef d'[API suivi La Poste](https://developer.laposte.fr/products/suivi/latest) à utiliser |
 
 ## Note
 Afin de faciliter l'utilisation de cet outil, les requêtes sont transmises via un serveur [suivi-poste-proxy](https://gist.github.com/rigwild/c88e5a85fb1f1365cecbbe597dd5dcca) qui injecte sa clef d'[API suivi La Poste](https://developer.laposte.fr/products/suivi/latest) et cache votre adresse IP.

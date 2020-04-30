@@ -30,7 +30,7 @@ if (trackingNumbers.length === 0 || ['h', 'help', 'aide'].some(x => argv[x] === 
     $ suivi-poste 4P36275770836 114111111111111 --no-color
     $ suivi-poste 4P36275770836 --raw --api-key="my-api-key"
 
-  https://github.com/rigwild/suivi-poste
+  suivi-poste-cli v${require('./package.json').version} - https://github.com/rigwild/suivi-poste-cli
 `)
   process.exit(0)
 }
