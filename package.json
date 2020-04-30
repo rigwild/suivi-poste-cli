@@ -1,6 +1,6 @@
 {
   "name": "suivi-poste-cli",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Suivre les envois postaux depuis le terminal",
   "license": "MIT",
   "repository": "rigwild/suivi-poste-cli",
@@ -34,6 +34,7 @@
     "cli-table3": "^0.6.0",
     "minimist": "^1.2.5",
     "node-fetch": "^2.6.0",
-    "suivi-poste": "^0.1.1"
+    "suivi-poste": "^0.1.1",
+    "update-notifier": "^4.1.0"
   }
 }

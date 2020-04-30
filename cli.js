@@ -6,7 +6,10 @@
 const argv = require('minimist')(process.argv.slice(2))
 const chalk = require('chalk')
 const Table = require('cli-table3')
+const updateNotifier = require('update-notifier')
 const suiviPoste = require('suivi-poste')
+
+const pkg = require('./package.json')
 
 const trackingNumbers = argv._.map(x => x.toString())
 
@@ -30,7 +33,7 @@ if (trackingNumbers.length === 0 || ['h', 'help', 'aide'].some(x => argv[x] === 
     $ suivi-poste 4P36275770836 114111111111111 --no-color
     $ suivi-poste 4P36275770836 --raw --api-key="my-api-key"
 
-  suivi-poste-cli v${require('./package.json').version} - https://github.com/rigwild/suivi-poste-cli
+  suivi-poste-cli v${pkg.version} - https://github.com/rigwild/suivi-poste-cli
 `)
   process.exit(0)
 }
@@ -187,4 +190,6 @@ const setup = async () => {
     console.error(chalk.cyanBright(`\n🛠️ Cet outil se base sur l'API de suivi Open Data de La Poste, en beta. Certains numéros de suivis peuvent ne pas être reconnus.\n` + `👉 Essayez sur le site: https://www.laposte.fr/outils/suivre-vos-envois\n`))
   }
 }
+
 setup()
+updateNotifier({ pkg }).notify()
