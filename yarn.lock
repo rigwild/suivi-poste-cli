@@ -515,10 +515,10 @@ strip-json-comments@~2.0.1:
   resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-2.0.1.tgz#3c531942e908c2697c0ec344858c286c7ca0a60a"
   integrity sha1-PFMZQukIwml8DsNEhYwobHygpgo=
 
-suivi-poste@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/suivi-poste/-/suivi-poste-0.1.1.tgz#edaf16cb7a3980829942143112028b84d0b32d76"
-  integrity sha512-G7ehc+6HocGsScbTWbBBYAPwaJzkIpCI/P4iR+gtJPPN7pGTYvWGcBYYjugP7qxqV73Jocxy6RdCCCk4vrqIaw==
+suivi-poste@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/suivi-poste/-/suivi-poste-0.2.0.tgz#dbdbb3e998b0cae1f18744b2adf8368968de5adc"
+  integrity sha512-RTT+nfEZiDfNiJBML7RhUPh12GOcrbmOI/Ue9cirfFAclIjk7vTSiwq0rKpSqEm58GQGlVsV2pJ5ft/WilLFdQ==
   dependencies:
     node-fetch "^2.6.0"
 

@@ -7,7 +7,7 @@ const argv = require('minimist')(process.argv.slice(2))
 const chalk = require('chalk')
 const Table = require('cli-table3')
 const updateNotifier = require('update-notifier')
-const suiviPoste = require('suivi-poste')
+const { suiviPosteApi, events: suiviPosteEvents, shipmentHolderEnum, shipmentContextDataDeliveryChoiceEnum } = require('suivi-poste')
 
 const pkg = require('./package.json')
 
@@ -26,7 +26,7 @@ if (trackingNumbers.length === 0 || ['h', 'help', 'aide'].some(x => argv[x] === 
     --no-color          Désactiver l'affichage des couleurs
     --api-key="<token>" Clef d'API suivi La Poste à utiliser
     
-  Exemple
+  Exemples
     $ suivi-poste 4P36275770836
     $ suivi-poste 4P36275770836 --full
     $ suivi-poste 4P36275770836 6T11111111110 114111111111111
@@ -82,7 +82,7 @@ const dataToOutputBasic = trackingData => {
 
   // Show last event
   const lastEvent = s.event[0]
-  shipmentDataTable.push([chalk.cyanBright('Dernier statut'), `${dateFormat(new Date(lastEvent.date))} :\n${lastEvent.label ? lastEvent.label : suiviPoste.events[lastEvent.code].msg}`])
+  shipmentDataTable.push([chalk.cyanBright('Dernier statut'), `${dateFormat(new Date(lastEvent.date))} :\n${lastEvent.label ? lastEvent.label : suiviPosteEvents[lastEvent.code].msg}`])
 
   return shipmentDataTable.toString()
 }
@@ -111,12 +111,12 @@ const dataToOutputFull = trackingData => {
     wordWrap: true
   })
   if (s.product) contextDataTable.push({ [chalk.grey('Dénomination du produit')]: `${s.product[0].toUpperCase()}${s.product.slice(1)}` })
-  if (s.holder) contextDataTable.push({ [chalk.grey("Métier en charge de l'objet")]: suiviPoste.shipmentHolderEnum[s.holder] })
+  if (s.holder) contextDataTable.push({ [chalk.grey("Métier en charge de l'objet")]: shipmentHolderEnum[s.holder] })
   if (c) {
     if (c.removalPoint && c.removalPoint.name) contextDataTable.push({ [chalk.grey('Point de retrait')]: `${c.removalPoint.type} ${c.removalPoint.name}` })
     if (c.originCountry) contextDataTable.push({ [chalk.grey("Pays d'origine")]: c.originCountry })
     if (c.arrivalCountry) contextDataTable.push({ [chalk.grey('Pays de destination')]: c.arrivalCountry })
-    if (c.deliveryChoice && c.deliveryChoice.deliveryChoice) contextDataTable.push({ [chalk.grey('Modification de livraison')]: suiviPoste.shipmentContextDataDeliveryChoiceEnum[c.deliveryChoice.deliveryChoice] })
+    if (c.deliveryChoice && c.deliveryChoice.deliveryChoice) contextDataTable.push({ [chalk.grey('Modification de livraison')]: shipmentContextDataDeliveryChoiceEnum[c.deliveryChoice.deliveryChoice] })
     if (c.partner) contextDataTable.push({ [chalk.grey('Informations sur poste internationale')]: `${c.partner.name} - ${c.partner.network} - ${c.partner.reference}` })
     if (s.url) contextDataTable.push({ [chalk.grey('URL de suivi')]: s.url })
   }
@@ -133,7 +133,7 @@ const dataToOutputFull = trackingData => {
   })
   eventsTable.push(
     ...s.event.reverse().map((x, i, arr) => {
-      return [dateFormat(new Date(x.date)), x.label ? x.label : suiviPoste.events[x.code].msg]
+      return [dateFormat(new Date(x.date)), x.label ? x.label : suiviPosteEvents[x.code].msg]
     })
   )
   trackingDataStr += `\n${eventsTable.toString()}`
@@ -144,13 +144,13 @@ const dataToOutputFull = trackingData => {
 // Track the shipment and print the result to the console
 const setup = async () => {
   try {
-    const suiviPosteApi = suiviPoste.api({
+    const suiviPoste = suiviPosteApi({
       token: argv['api-key'],
       userAgent: `suivi-laposte-cli/${require('./package.json').version}`,
       uri: process.env.NODE_ENV === 'test' ? 'http://localhost:42210/_proxy' : !argv['api-key'] ? 'https://suivi-poste-proxy.rigwild.dev/_proxy' : undefined
     })
 
-    let trackingDatas = await suiviPosteApi.getTracking(...trackingNumbers)
+    let trackingDatas = await suiviPoste.getTracking(...trackingNumbers)
 
     // Raw mode, just print the result
     if (isRawMode) return process.stdout.write(JSON.stringify(trackingDatas))

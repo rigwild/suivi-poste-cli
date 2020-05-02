@@ -1,4 +1,6 @@
 # suivi-poste-cli
+[![npm badge](https://img.shields.io/npm/v/suivi-poste-cli.svg?logo=npm)](https://www.npmjs.com/package/suivi-poste-cli)
+
 > Suivre les envois postaux depuis le terminal
 
 ![Screenshot](./screenshot_basic.png)
@@ -32,7 +34,7 @@ $ suivi-poste --help
     --no-color          Désactiver l'affichage des couleurs
     --api-key="<token>" Clef d'API suivi La Poste à utiliser
     
-  Exemple
+  Exemples
     $ suivi-poste 4P36275770836
     $ suivi-poste 4P36275770836 --full
     $ suivi-poste 4P36275770836 6T11111111110 114111111111111
