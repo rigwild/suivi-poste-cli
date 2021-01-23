@@ -45,15 +45,15 @@ $ suivi-poste --help
 ```
 
 ## Note
-Afin de faciliter l'utilisation de cet outil, les requêtes sont transmises via un serveur [suivi-poste-proxy](https://gist.github.com/rigwild/c88e5a85fb1f1365cecbbe597dd5dcca) qui injecte sa clef d'[API suivi La Poste](https://developer.laposte.fr/products/suivi/latest) et cache votre adresse IP.
+Afin de faciliter l'utilisation de cet outil, les requêtes sont transmises via un serveur [suivi-poste-proxy](https://github.com/rigwild/suivi-poste-proxy) qui injecte sa clef d'[API suivi La Poste](https://developer.laposte.fr/products/suivi/latest) et cache votre adresse IP.
 
-Pour ne pas passer par le [suivi-poste-proxy](https://gist.github.com/rigwild/c88e5a85fb1f1365cecbbe597dd5dcca) et communiquer directement avec l'[API suivi La Poste](https://developer.laposte.fr/products/suivi/latest), générez votre propre clef d'API en mode production et utilisez l'argument de commande `--api-key="<token>"`.
+Pour ne pas passer par le [suivi-poste-proxy](https://github.com/rigwild/suivi-poste-proxy) et communiquer directement avec l'[API suivi La Poste](https://developer.laposte.fr/products/suivi/latest), générez votre propre clef d'API en mode production et utilisez l'argument de commande `--api-key="<token>"`.
 
 Il faut s'inscrire sur le portail [developer.laposte.fr](https://developer.laposte.fr) pour générer une clef d'API.
 
 ## Associés
  - [suivi-poste](https://github.com/rigwild/suivi-poste) - API pour ce module
- - [suivi-poste-proxy](https://gist.github.com/rigwild/c88e5a85fb1f1365cecbbe597dd5dcca) - Serveur proxy pour ce module
+ - [suivi-poste-proxy](https://github.com/rigwild/suivi-poste-proxy) - Serveur proxy pour ce module
 
 ## Licence
 [Licence MIT](./LICENSE)

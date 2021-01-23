@@ -4,6 +4,9 @@
   "description": "Suivre les envois postaux depuis le terminal",
   "license": "MIT",
   "repository": "rigwild/suivi-poste-cli",
+  "type": "module",
+  "module": "cli.js",
+  "main": "cli.js",
   "author": {
     "name": "rigwild",
     "email": "me@rigwild.dev",
@@ -30,11 +33,11 @@
     "courrier"
   ],
   "dependencies": {
-    "chalk": "^4.0.0",
+    "chalk": "^4.1.0",
     "cli-table3": "^0.6.0",
     "minimist": "^1.2.5",
-    "node-fetch": "^2.6.0",
-    "suivi-poste": "^0.2.0",
-    "update-notifier": "^4.1.0"
+    "node-fetch": "^2.6.1",
+    "suivi-poste": "^0.3.0",
+    "update-notifier": "^5.0.1"
   }
 }

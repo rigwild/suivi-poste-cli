@@ -3,13 +3,16 @@
 // @ts-check
 'use strict'
 
-const argv = require('minimist')(process.argv.slice(2))
-const chalk = require('chalk')
-const Table = require('cli-table3')
-const updateNotifier = require('update-notifier')
-const { suiviPosteApi, events: suiviPosteEvents, shipmentHolderEnum, shipmentContextDataDeliveryChoiceEnum } = require('suivi-poste')
+import { readFileSync } from 'fs'
+import _argv from 'minimist'
+const argv = _argv(process.argv.slice(2))
+import chalk from 'chalk'
+import Table from 'cli-table3'
+import updateNotifier from 'update-notifier'
+import { suiviPosteApi, events as suiviPosteEvents, shipmentHolderEnum, shipmentContextDataDeliveryChoiceEnum } from 'suivi-poste'
 
-const pkg = require('./package.json')
+// @ts-ignore
+const pkg = JSON.parse(readFileSync(new URL('package.json', import.meta.url), { encoding: 'utf8' }))
 
 const trackingNumbers = argv._.map(x => x.toString())
 
@@ -146,7 +149,7 @@ const setup = async () => {
   try {
     const suiviPoste = suiviPosteApi({
       token: argv['api-key'],
-      userAgent: `suivi-laposte-cli/${require('./package.json').version}`,
+      userAgent: `github.com/rigwild/suivi-poste-cli v${pkg.version}`,
       uri: process.env.NODE_ENV === 'test' ? 'http://localhost:42210/_proxy' : !argv['api-key'] ? 'https://suivi-poste-proxy.rigwild.dev/_proxy' : undefined
     })
 
